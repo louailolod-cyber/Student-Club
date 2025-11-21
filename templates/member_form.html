@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Member Form{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">{{ member and 'Edit Member' or 'Add Member' }}</h1>
+
+<form method="POST">
+  <div class="mb-3">
+    <label class="form-label">First Name</label>
+    <input type="text" name="first_name" class="form-control" value="{{ member.first_name if member else '' }}" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Last Name</label>
+    <input type="text" name="last_name" class="form-control" value="{{ member.last_name if member else '' }}" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Email</label>
+    <input type="email" name="email" class="form-control" value="{{ member.email if member else '' }}" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Role</label>
+    <select name="role" class="form-select">
+      <option value="member" {% if member and member.role=='member' %}selected{% endif %}>Member</option>
+      <option value="bureau" {% if member and member.role=='bureau' %}selected{% endif %}>Bureau</option>
+    </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Status</label>
+    <select name="status" class="form-select">
+      <option value="active" {% if member and member.status=='active' %}selected{% endif %}>Active</option>
+      <option value="inactive" {% if member and member.status=='inactive' %}selected{% endif %}>Inactive</option>
+    </select>
+  </div>
+  <button type="submit" class="btn btn-success">Save</button>
+  <a href="{{ url_for('members_list') }}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

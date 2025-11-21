@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Dashboard</h1>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card card-small p-3 text-center">
+      <h5>Total Members</h5>
+      <p class="display-6">{{ total_members or 0 }}</p>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card card-small p-3 text-center">
+      <h5>Overdue Payments</h5>
+      <p class="display-6 text-danger">{{ overdue_payments or 0 }}</p>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card card-small p-3 text-center">
+      <h5>Upcoming Events</h5>
+      <p class="display-6">{{ upcoming_events or 0 }}</p>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card card-small p-3 text-center">
+      <h5>Notifications</h5>
+      <p>{{ notifications_count or 0 }}</p>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">Upcoming Events</div>
+  <div class="card-body">
+    <table class="table">
+      <thead>
+        <tr><th>Title</th><th>Date</th><th>Location</th><th>Participants</th></tr>
+      </thead>
+      <tbody>
+        {% for event in events %}
+        <tr>
+          <td>{{ event.title or '--' }}</td>
+          <td>{{ event.date or '--' }}</td>
+          <td>{{ event.location or '--' }}</td>
+          <td>{{ event.participants|length if event.participants else 0 }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4" class="text-center">No upcoming events</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
