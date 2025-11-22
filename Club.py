@@ -1,4 +1,5 @@
 # Club.py
+# Club.py
 from flask import Flask, render_template, redirect, url_for, request, flash
 from model import db, Member, Payment, Event, Project, Announcement
 import Controller
@@ -78,23 +79,27 @@ def delete_member(member_id):
 # ---- Payments ----
 @app.route('/payments')
 def payments_list():
-    payments = Controller.get_all_payments()
-    return render_template('payments.html', payments=payments)
+    return render_template('payment_form.html')
 
 @app.route('/payments/add', methods=['GET', 'POST'])
 def add_payment():
     if request.method == 'POST':
         Controller.add_payment(int(request.form['member_id']), float(request.form['amount']), method=request.form.get('method','Cash'))
         flash('Payment added', 'success')
-        return redirect(url_for('payments_list'))
-    members = Controller.get_all_members()
-    return render_template('payment_form.html', members=members)
+        return redirect(url_for('payments_table'))
+    return render_template('payment_form.html')
 
 @app.route('/payments/delete/<int:payment_id>')
 def delete_payment(payment_id):
     Controller.delete_payment(payment_id)
     flash('Payment deleted', 'info')
-    return redirect(url_for('payments_list'))
+    return redirect(url_for('payments_table'))
+
+
+@app.route('/payments/list')
+def payments_table():
+    payments = Controller.get_all_payments()
+    return render_template('payments_list.html', payments=payments)
 
 # ---- Events ----
 @app.route('/events')
@@ -117,6 +122,13 @@ def register_event():
     flash('Registered to event', 'success')
     return redirect(url_for('events_list'))
 
+
+@app.route('/events/delete/<int:event_id>')
+def delete_event(event_id):
+    Controller.delete_event(event_id)
+    flash('Event deleted', 'info')
+    return redirect(url_for('events_list'))
+
 # ---- Announcements ----
 @app.route('/announcements')
 def announcements_list():
@@ -131,6 +143,22 @@ def add_announcement():
         return redirect(url_for('announcements_list'))
     return render_template('announcement_form.html')
 
+
+@app.route('/announcements/<int:announcement_id>')
+def view_announcement(announcement_id):
+    a = Controller.get_announcement_by_id(announcement_id)
+    if not a:
+        flash('Announcement not found', 'danger')
+        return redirect(url_for('announcements_list'))
+    return render_template('announcement_detail.html', announcement=a)
+
+
+@app.route('/announcements/delete/<int:announcement_id>')
+def delete_announcement(announcement_id):
+    Controller.delete_announcement(announcement_id)
+    flash('Announcement deleted', 'info')
+    return redirect(url_for('announcements_list'))
+
 # ---- Projects ----
 @app.route('/projects')
 def projects_list():
@@ -140,10 +168,66 @@ def projects_list():
 @app.route('/projects/add', methods=['GET','POST'])
 def add_project():
     if request.method == 'POST':
-        Controller.add_project(request.form['name'], request.form.get('status','ongoing'))
-        flash('Project created', 'success')
+        title = request.form.get('title')
+        description = request.form.get('description') or None
+        start_date = request.form.get('start_date')
+        end_date = request.form.get('end_date')
+        responsible = request.form.get('responsible_member_id')
+        try:
+            sd = datetime.strptime(start_date, '%Y-%m-%d').date() if start_date else None
+        except Exception:
+            sd = None
+        try:
+            ed = datetime.strptime(end_date, '%Y-%m-%d').date() if end_date else None
+        except Exception:
+            ed = None
+        resp_id = int(responsible) if responsible else None
+        try:
+            Controller.add_project(title, description=description, start_date=sd, end_date=ed, responsible_member_id=resp_id)
+            flash('Project created', 'success')
+            return redirect(url_for('projects_list'))
+        except Exception as e:
+            flash(str(e), 'danger')
+            return render_template('projects_form.html')
+    return render_template('projects_form.html')
+
+
+@app.route('/projects/edit/<int:project_id>', methods=['GET', 'POST'])
+def edit_project(project_id):
+    project = Controller.get_project_by_id(project_id)
+    if not project:
+        flash('Project not found', 'danger')
         return redirect(url_for('projects_list'))
-    return render_template('project_form.html')
+    if request.method == 'POST':
+        title = request.form.get('title')
+        description = request.form.get('description') or None
+        start_date = request.form.get('start_date')
+        end_date = request.form.get('end_date')
+        responsible = request.form.get('responsible_member_id')
+        try:
+            sd = datetime.strptime(start_date, '%Y-%m-%d').date() if start_date else None
+        except Exception:
+            sd = None
+        try:
+            ed = datetime.strptime(end_date, '%Y-%m-%d').date() if end_date else None
+        except Exception:
+            ed = None
+        resp_id = int(responsible) if responsible else None
+        try:
+            Controller.update_project(project_id, title=title, description=description, start_date=sd, end_date=ed, responsible_member_id=resp_id)
+            flash('Project updated', 'success')
+            return redirect(url_for('projects_list'))
+        except Exception as e:
+            flash(str(e), 'danger')
+            return render_template('projects_form.html', project=project)
+    return render_template('projects_form.html', project=project)
+
+
+@app.route('/projects/delete/<int:project_id>')
+def delete_project(project_id):
+    Controller.delete_project(project_id)
+    flash('Project deleted', 'info')
+    return redirect(url_for('projects_list'))
 
 # ---- Profile / logout (simple placeholders) ----
 @app.route('/profile')
