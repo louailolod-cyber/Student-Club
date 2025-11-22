@@ -3,9 +3,10 @@
 {% block title %}Event Form{% endblock %}
 
 {% block content %}
+
 <h1 class="mb-4">{{ event and 'Edit Event' or 'Add Event' }}</h1>
 
-<form method="POST">
+<form method="POST" action="/events/add">
   <div class="mb-3">
     <label class="form-label">Title</label>
     <input type="text" name="title" class="form-control" value="{{ event.title if event else '' }}" required>
@@ -29,5 +30,8 @@
   <button type="submit" class="btn btn-success">Save</button>
   <a href="{{ url_for('events_list') }}" class="btn btn-secondary">Cancel</a>
 </form>
+ 
 {% endblock %}
+
+
 
