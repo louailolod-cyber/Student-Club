@@ -124,8 +124,34 @@ def get_project_by_id(project_id):
     return Project.query.get(project_id)
 
 def add_project(title, description=None, start_date=None, end_date=None, responsible_member_id=None):
+    # validate responsible member exists when provided
+    if responsible_member_id is not None:
+        if not Member.query.get(responsible_member_id):
+            raise ValueError(f"Responsible member id {responsible_member_id} not found")
     pr = Project(title=title, description=description, start_date=start_date, end_date=end_date, responsible_member_id=responsible_member_id)
     db.session.add(pr)
+    db.session.commit()
+    return pr
+
+def update_project(project_id, **kwargs):
+    pr = get_project_by_id(project_id)
+    if not pr:
+        return None
+    # validate responsible member id if being updated
+    if 'responsible_member_id' in kwargs and kwargs.get('responsible_member_id') is not None:
+        if not Member.query.get(kwargs.get('responsible_member_id')):
+            raise ValueError(f"Responsible member id {kwargs.get('responsible_member_id')} not found")
+    for k, v in kwargs.items():
+        if hasattr(pr, k) and v is not None:
+            setattr(pr, k, v)
+    db.session.commit()
+    return pr
+
+def delete_project(project_id):
+    pr = get_project_by_id(project_id)
+    if not pr:
+        return None
+    db.session.delete(pr)
     db.session.commit()
     return pr
 
@@ -145,7 +171,18 @@ def get_all_announcements():
     return Announcement.query.order_by(Announcement.date.desc()).all()
 
 def add_announcement(title, content, author=None):
-    a = Announcement(title=title, content=content, author=author)
+    a = Announcement(title=title, content=content, author=author, date=datetime.utcnow())
     db.session.add(a)
+    db.session.commit()
+    return a
+
+def get_announcement_by_id(announcement_id):
+    return Announcement.query.get(announcement_id)
+
+def delete_announcement(announcement_id):
+    a = Announcement.query.get(announcement_id)
+    if not a:
+        return None
+    db.session.delete(a)
     db.session.commit()
     return a
