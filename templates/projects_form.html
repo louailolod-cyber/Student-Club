@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Project Form{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">{{ 'Edit Project' if project else 'Add Project' }}</h1>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, msg in messages %}
+      <div class="alert alert-{{ 'danger' if category=='danger' else category }}">{{ msg }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<form method="POST" action="{{ url_for('add_project') if not project else url_for('edit_project', project_id=project.id) }}">
+  <div class="mb-3">
+    <label class="form-label">Title</label>
+    <input type="text" name="title" class="form-control" value="{{ request.form.title if request.method=='POST' else (project.title if project else '') }}" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Description</label>
+    <textarea name="description" class="form-control" rows="4">{{ request.form.description if request.method=='POST' else (project.description if project else '') }}</textarea>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Start date</label>
+    <input type="date" name="start_date" class="form-control" value="{{ request.form.start_date if request.method=='POST' else (project.start_date.isoformat() if project and project.start_date else '') }}">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">End date</label>
+    <input type="date" name="end_date" class="form-control" value="{{ request.form.end_date if request.method=='POST' else (project.end_date.isoformat() if project and project.end_date else '') }}">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Responsible Member ID</label>
+    <input type="number" name="responsible_member_id" class="form-control" value="{{ request.form.responsible_member_id if request.method=='POST' else (project.responsible_member_id if project else '') }}">
+  </div>
+  <button type="submit" class="btn btn-success">Save</button>
+  <a href="{{ url_for('projects_list') }}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}
+
