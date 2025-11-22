@@ -1,25 +1,34 @@
 {% extends 'base.html' %}
 
-{% block title %}Announcement Form{% endblock %}
+{% block title %}Announcements{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">Add Announcement</h1>
+<h1 class="mb-4">Announcements</h1>
 
-<form method="POST">
-  <div class="mb-3">
-    <label class="form-label">Title</label>
-    <input type="text" name="title" class="form-control" required>
+<a href="{{ url_for('add_announcement') }}" class="btn btn-primary mb-3">New Announcement</a>
+
+{% if announcements %}
+  <div class="list-group">
+    {% for a in announcements %}
+      <div class="list-group-item">
+        <div class="d-flex w-100 justify-content-between align-items-start">
+          <div>
+            <h5 class="mb-1"><a href="{{ url_for('view_announcement', announcement_id=a.id) }}">{{ a.title }}</a></h5>
+            <p class="mb-1">{{ a.content[:200] }}{% if a.content|length > 200 %}...{% endif %}</p>
+            <small class="text-muted">{{ a.author or 'Unknown' }}</small>
+          </div>
+          <div class="btn-group btn-group-sm ms-3" role="group">
+            <a href="{{ url_for('view_announcement', announcement_id=a.id) }}" class="btn btn-outline-primary">View</a>
+            <a href="{{ url_for('delete_announcement', announcement_id=a.id) }}" class="btn btn-outline-danger" onclick="return confirm('Delete this announcement?')">Delete</a>
+          </div>
+        </div>
+        <small class="text-muted">{% if a.date is string %}{{ a.date }}{% elif a.date %}{{ a.date.strftime('%Y-%m-%d') }}{% else %}{% endif %}</small>
+      </div>
+    {% endfor %}
   </div>
-  <div class="mb-3">
-    <label class="form-label">Content</label>
-    <textarea name="content" class="form-control" rows="4" required></textarea>
-  </div>
-  <div class="mb-3">
-    <label class="form-label">Author</label>
-    <input type="text" name="author" class="form-control" required>
-  </div>
-  <button type="submit" class="btn btn-success">Save</button>
-  <a href="{{ url_for('announcements_list') }}" class="btn btn-secondary">Cancel</a>
-</form>
+{% else %}
+  <p>No announcements.</p>
+{% endif %}
+
 {% endblock %}
 
