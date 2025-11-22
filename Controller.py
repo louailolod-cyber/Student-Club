@@ -145,7 +145,7 @@ def get_all_announcements():
     return Announcement.query.order_by(Announcement.date.desc()).all()
 
 def add_announcement(title, content, author=None):
-    a = Announcement(title=title, content=content, author=author)
+    a = Announcement(title=title, content=content, author=author, date=datetime.utcnow())
     db.session.add(a)
     db.session.commit()
     return a
