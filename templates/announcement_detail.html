@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}{{ announcement.title }}{% endblock %}
+{% with messages = get_flashed_messages() %}
 
 {% block content %}
 <h1 class="mb-4">{{ announcement.title }}</h1>
