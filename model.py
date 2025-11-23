@@ -19,6 +19,7 @@ class Member(db.Model):
     payments = db.relationship('Payment', backref='member', cascade='all, delete-orphan')
     event_participations = db.relationship('EventParticipant', backref='member', cascade='all, delete-orphan')
     responses = db.relationship('Response', backref='member', cascade='all, delete-orphan')
+    projects = db.relationship('Project', backref='responsible_member', cascade='all, delete-orphan')
 
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
