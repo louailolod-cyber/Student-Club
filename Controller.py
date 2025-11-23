@@ -1,4 +1,5 @@
 # Controller.py
+import email
 from model import db, Member, Payment, Event, EventParticipant, Project, Response, Announcement
 from datetime import datetime, date
 
@@ -7,11 +8,12 @@ from datetime import datetime, date
 # -------------------------
 def get_all_members():
     return Member.query.order_by(Member.last_name).all()
-
+def get_member_by_email(email):
+    return Member.query.filter_by(email=email).first()
 def get_member_by_id(member_id):
     return Member.query.get(member_id)
 
-def add_member(first_name, last_name, email, role='member', status='active', birth_date=None, password=None):
+def add_member(first_name, last_name, email, role='member', status='active', birth_date='birth_date', password=None):
     # check email unique
     if Member.query.filter_by(email=email).first():
         raise ValueError("Email already exists")
@@ -21,8 +23,7 @@ def add_member(first_name, last_name, email, role='member', status='active', bir
         email=email,
         role=role,
         status=status,
-        birth_date=birth_date,
-        password=password
+        birth_date = birth_date
     )
     db.session.add(m)
     db.session.commit()
@@ -42,6 +43,7 @@ def delete_member(member_id):
     m = get_member_by_id(member_id)
     if not m:
         return None
+
     db.session.delete(m)
     db.session.commit()
     return m
@@ -124,7 +126,7 @@ def get_project_by_id(project_id):
     return Project.query.get(project_id)
 
 def add_project(title, description=None, start_date=None, end_date=None, responsible_member_id=None):
-    # validate responsible member exists when provided
+    # validate responsible member id
     if responsible_member_id is not None:
         if not Member.query.get(responsible_member_id):
             raise ValueError(f"Responsible member id {responsible_member_id} not found")
@@ -141,9 +143,9 @@ def update_project(project_id, **kwargs):
     if 'responsible_member_id' in kwargs and kwargs.get('responsible_member_id') is not None:
         if not Member.query.get(kwargs.get('responsible_member_id')):
             raise ValueError(f"Responsible member id {kwargs.get('responsible_member_id')} not found")
-    for k, v in kwargs.items():
-        if hasattr(pr, k) and v is not None:
-            setattr(pr, k, v)
+    for k, v in kwargs.items(): 
+        if hasattr(pr, k) and v is not None: # only update non-None values 
+            setattr(pr, k, v) # set attribute
     db.session.commit()
     return pr
 
