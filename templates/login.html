@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Login</h1>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, msg in messages %}
+      <div class="alert alert-{{ 'danger' if category=='danger' else category }}">{{ msg }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<form method="POST">
+  <div class="mb-3">
+    <label class="form-label">Email or username</label>
+    <input type="text" name="identifier" class="form-control" placeholder="email@example.com or 'admin'" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Password or Date of birth</label>
+    <input type="text" name="secret" class="form-control" placeholder="admin password or YYYY-MM-DD for members" required>
+  </div>
+  <button class="btn btn-primary" type="submit">Login</button>
+  <a class="btn btn-link" href="{{ url_for('signup') }}">Sign up</a>
+</form>
+{% endblock %}
+
+
