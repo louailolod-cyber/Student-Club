@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Profile</h1>
+{% if role == 'admin' %}
+  <div class="alert alert-info">You are logged in as <strong>admin</strong>.</div>
+{% elif user %}
+  <div class="card p-3">
+    <h5>{{ user.full_name() }}</h5>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Joined:</strong> {{ user.join_date }}</p>
+    <p><strong>Birth date:</strong> {{ user.birth_date }}</p>
+  </div>
+{% else %}
+  <div class="alert alert-warning">No profile information available.</div>
+{% endif %}
+{% endblock %}
+
